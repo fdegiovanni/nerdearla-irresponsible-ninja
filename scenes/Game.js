@@ -20,6 +20,7 @@ export default class Game extends Phaser.Scene {
     this.addClouds();
     this.addPlatforms();
     this.addPole();
+    this.addPlayer();
 
     // input management
     this.input.on("pointerdown", this.handlePointerDown, this);
@@ -174,6 +175,26 @@ export default class Game extends Phaser.Scene {
     this.pole.displayHeight = this.poleWidth;
   }
 
+  addPlayer() {
+    const platformBounds = this.platforms[this.mainPlatform].getBounds();
+    const heroPosX = platformBounds.right - this.poleWidth;
+    const heroPosY = platformBounds.top;
+
+    this.hero = this.add
+      .sprite(heroPosX, heroPosY, "hero")
+      .setOrigin(1, 1)
+      .play("idle");
+  }
+
+  moveHero() {
+    this.hero.play("run");
+    this.walkTween = this.tweens.add({
+      targets: [this.hero],
+      x: this.pole.getBounds().right,
+      duration: this.heroWalkTime * this.pole.displayHeight,
+    });
+  }
+
   handlePointerDown() {
     const maxPoleWidth = this.platformGapRange[1] + this.platformWidthRange[1];
 
@@ -192,6 +213,10 @@ export default class Game extends Phaser.Scene {
       angle: 90,
       duration: this.poleRotateTime,
       ease: "Bounce.easeOut",
+      callbackScope: this,
+      onComplete: function () {
+        this.moveHero();
+      },
     });
   }
 }

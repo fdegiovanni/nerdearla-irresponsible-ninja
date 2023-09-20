@@ -17,6 +17,7 @@ const gameOptions = {
   poleWidth: 8,
   poleGrowTime: 400,
   poleRotateTime: 500,
+  heroWalkTime: 2,
 };
 export default gameOptions;
 
