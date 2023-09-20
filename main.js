@@ -14,6 +14,9 @@ const gameOptions = {
   platformGapRange: [200, 400],
   platformWidthRange: [50, 150],
   scrollTime: 250,
+  poleWidth: 8,
+  poleGrowTime: 400,
+  poleRotateTime: 500,
 };
 export default gameOptions;
 
