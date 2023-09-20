@@ -10,6 +10,7 @@ export default class Preload extends Phaser.Scene {
       frameWidth: 256,
       frameHeight: 256,
     });
+    this.load.image("tile", "./assets/images/tile.png");
   }
 
   create() {
