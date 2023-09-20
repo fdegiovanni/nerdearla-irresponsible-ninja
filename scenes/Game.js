@@ -20,7 +20,7 @@ export default class Game extends Phaser.Scene {
     this.addClouds();
     this.addPlatforms();
     this.addPole();
-    this.addPlayer();
+    this.addHero();
 
     // input management
     this.input.on("pointerdown", this.handlePointerDown, this);
@@ -175,7 +175,7 @@ export default class Game extends Phaser.Scene {
     this.pole.displayHeight = this.poleWidth;
   }
 
-  addPlayer() {
+  addHero() {
     const platformBounds = this.platforms[this.mainPlatform].getBounds();
     const heroPosX = platformBounds.right - this.poleWidth;
     const heroPosY = platformBounds.top;
