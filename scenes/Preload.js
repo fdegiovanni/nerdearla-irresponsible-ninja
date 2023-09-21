@@ -15,6 +15,22 @@ export default class Preload extends Phaser.Scene {
       frameWidth: 77,
       frameHeight: 97,
     });
+    this.load.spritesheet("icons", "./assets/images/icons.png", {
+      frameWidth: 150,
+      frameHeight: 150,
+    });
+    this.load.image(
+      "win1",
+      "https://media.tenor.com/z7LfGbHxFs4AAAAd/bh187-beverly-hills-ninja.gif"
+    );
+    this.load.image(
+      "win2",
+      "https://media.tenor.com/O6UyDzl8CC4AAAAd/bh187-beverly-hills-ninja.gif"
+    );
+    this.load.image(
+      "win3",
+      "https://i.pinimg.com/originals/b8/25/10/b8251034bd24a82076c35b0ebb963060.gif"
+    );
   }
 
   create() {

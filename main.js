@@ -3,6 +3,7 @@ import Menu from "./scenes/Menu.js";
 import Credits from "./scenes/Credits.js";
 import Game from "./scenes/Game.js";
 import GameOver from "./scenes/GameOver.js";
+import Win from "./scenes/Win.js";
 
 const gameOptions = {
   defaultSize: {
@@ -28,7 +29,7 @@ const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
-  scene: [Preload, Menu, Credits, Game, GameOver],
+  scene: [Preload, Menu, Credits, Game, GameOver, Win],
 };
 
 window.game = new Phaser.Game(config);
