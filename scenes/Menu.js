@@ -1,8 +1,13 @@
-import { getCoords, getGameName } from "../utils/functions.js";
+import { getCoords, getGameName, getStoredScore } from "../utils/functions.js";
 
 export default class Menu extends Phaser.Scene {
   constructor() {
     super("menu");
+  }
+
+  init() {
+    const { best } = getStoredScore();
+    this.best = best;
   }
 
   create() {
@@ -34,7 +39,7 @@ export default class Menu extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.bestText = this.add
-      .text(centerX, height - 85, `Best: ${0}`, {
+      .text(centerX, height - 85, `Best: ${this.best}`, {
         fontSize: "26px",
         color: "#fff",
         fixedWidth: 450,
