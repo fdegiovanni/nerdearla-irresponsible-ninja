@@ -26,4 +26,33 @@ const setStoredScore = (score) => {
   localStorage.setItem(keyStore, JSON.stringify(score));
 };
 
-export { getCoords, getGameName, getStoredScore, setStoredScore };
+const addSounds = (scene) => {
+  scene.sounds = {
+    death: scene.sound.add("death"),
+    run: scene.sound.add("run"),
+    stick: scene.sound.add("stick"),
+    grow: scene.sound.add("grow"),
+    pick: scene.sound.add("pick"),
+    click: scene.sound.add("click"),
+  };
+};
+
+const playSound = (sound, options) => {
+  if (window.soundOn) {
+    sound.play("", options);
+  }
+};
+
+const stopSound = (sound) => {
+  sound.stop();
+};
+
+export {
+  getCoords,
+  getGameName,
+  getStoredScore,
+  setStoredScore,
+  addSounds,
+  playSound,
+  stopSound,
+};
