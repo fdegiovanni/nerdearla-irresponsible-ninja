@@ -4,6 +4,7 @@ export default class Preload extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image("nerdearla", "./assets/images/nerdearla.png");
     this.load.image("background", "./assets/images/background.png");
     this.load.image("cover", "./assets/images/cover-removebg.png");
     this.load.spritesheet("cloud", "./assets/images/cloud.png", {
@@ -62,6 +63,37 @@ export default class Preload extends Phaser.Scene {
   }
 
   create() {
+    this.addNerdearlaLogo();
+    this.addAnimations();
+  }
+
+  addNerdearlaLogo() {
+    const { centerX, centerY } = this.cameras.main;
+    this.nerdearla = this.add
+      .image(centerX, centerY, "nerdearla")
+      .setScale(0.65)
+      .setAlpha(0);
+
+    this.add.tween({
+      targets: [this.nerdearla],
+      ease: "linear",
+      alpha: 1,
+      duration: 5000,
+      onComplete: () => {
+        this.add.tween({
+          targets: [this.nerdearla],
+          scale: 0.8,
+          duration: 5000,
+          easing: "linear",
+          onComplete: () => {
+            this.scene.start("menu");
+          },
+        });
+      },
+    });
+  }
+
+  addAnimations() {
     this.anims.create({
       key: "idle",
       frames: this.anims.generateFrameNumbers("hero", {
@@ -81,7 +113,5 @@ export default class Preload extends Phaser.Scene {
       frameRate: 15,
       repeat: -1,
     });
-
-    this.scene.start("menu");
   }
 }
