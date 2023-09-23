@@ -19,27 +19,19 @@ export default class Credits extends Phaser.Scene {
     const { centerX, centerY, height, width } = getCoords(this);
     this.cameras.main.setBackgroundColor("#000000");
 
-    this.add
-      .text(centerX, 100, gameName, {
-        fontSize: "48px",
-        color: "#fff",
-        align: "center",
-      })
-      .setOrigin(0.5);
+    this.add.text(centerX, 100, gameName, this.textFormat).setOrigin(0.5);
 
     this.add
       .text(centerX, 180, "Gracias por jugar", {
+        ...this.textFormat,
         fontSize: "40px",
-        color: "#fff",
-        align: "center",
       })
       .setOrigin(0.5);
 
     this.add
       .text(centerX, 250, `Desarrollado por: ${this.developer}`, {
+        ...this.textFormat,
         fontSize: "24px",
-        color: "#fff",
-        align: "center",
       })
       .setOrigin(0.5);
 
@@ -56,9 +48,9 @@ export default class Credits extends Phaser.Scene {
 
     this.add
       .text(centerX, centerY + 100, content, {
+        ...this.textFormat,
         fontSize: "20px",
         color: "grey",
-        align: "center",
       })
       .setOrigin(0.5);
 

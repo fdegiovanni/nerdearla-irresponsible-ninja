@@ -1,8 +1,11 @@
+import gameOptions from "../main.js";
 import { getCoords, getGameName } from "../utils/functions.js";
 
 export default class Win extends Phaser.Scene {
   constructor() {
     super("win");
+
+    Object.assign(this, gameOptions);
   }
 
   init({ score = 0, streak = 0 }) {
@@ -17,11 +20,10 @@ export default class Win extends Phaser.Scene {
 
     this.add
       .text(centerX, 100, getGameName(this), {
+        ...this.textFormat,
         fontSize: "40px",
-        color: "#fff",
         fixedWidth: 450,
         wordWrap: { width: 450 },
-        align: "center",
       })
       .setOrigin(0.5);
 
@@ -33,22 +35,22 @@ export default class Win extends Phaser.Scene {
 
     this.add
       .text(centerX, 200, "Excellent!", {
+        ...this.textFormat,
         fontSize: "60px",
         color: "green",
         fixedWidth: 450,
         wordWrap: { width: 450 },
-        align: "center",
       })
       .setOrigin(0.5);
 
     const content = [`Score: ${this.score}`, `Streak: ${this.streak}`];
     this.add
       .text(centerX, centerY + 200, content, {
+        ...this.textFormat,
         fontSize: "20px",
         color: "gray",
         fixedWidth: 450,
         wordWrap: { width: 450 },
-        align: "center",
       })
       .setOrigin(0.5);
 
