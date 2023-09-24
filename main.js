@@ -19,10 +19,12 @@ const gameOptions = {
   poleRotateTime: 500,
   heroWalkTime: 2,
   heroFallTime: 500,
+  developer: "fdegiovanni",
 };
 export default gameOptions;
 
 const config = {
+  title: "IRRESPONSIBLE NINJA",
   type: Phaser.AUTO,
   width: 800,
   height: 600,

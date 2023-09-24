@@ -9,4 +9,8 @@ const getCoords = (scene) => {
   return { width, height, centerX, centerY };
 };
 
-export { getCoords };
+const getGameName = (scene) => {
+  return scene.sys.game.config.gameTitle || "";
+};
+
+export { getCoords, getGameName };
