@@ -278,6 +278,7 @@ export default class Game extends Phaser.Scene {
       callbackScope: this,
       onComplete: function () {
         this.cameras.main.shake(200, 0.01);
+        this.showGameOver();
       },
     });
   }
@@ -316,6 +317,8 @@ export default class Game extends Phaser.Scene {
   }
 
   prepareNextMove() {
+    this.showWin();
+
     this.platforms[this.mainPlatform].x = this.coords.width;
     this.platforms[this.mainPlatform].alpha = 1;
     this.mainPlatform = 1 - this.mainPlatform;
@@ -327,6 +330,15 @@ export default class Game extends Phaser.Scene {
     this.pole.displayHeight = this.poleWidth;
 
     this.gameMode = WAITING_START;
+  }
+
+  showWin() {
+    this.scene.pause("game");
+    this.scene.launch("win");
+  }
+
+  showGameOver() {
+    this.scene.start("game-over");
   }
 
   handlePointerUp() {
