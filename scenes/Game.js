@@ -19,6 +19,11 @@ export default class Game extends Phaser.Scene {
     this.addBackground();
     this.addClouds();
     this.addPlatforms();
+    this.addPole();
+
+    // input management
+    this.input.on("pointerdown", this.handlePointerDown, this);
+    this.input.on("pointerup", this.handlePointerUp, this);
   }
 
   update() {}
@@ -154,5 +159,39 @@ export default class Game extends Phaser.Scene {
       this.addPlatform(this.coords.width),
     ];
     this.tweenPlatform();
+  }
+
+  addPole() {
+    const bounds = this.platforms[this.mainPlatform].getBounds();
+    this.pole = this.add.sprite(
+      bounds.right - this.poleWidth,
+      bounds.top,
+      "tile"
+    );
+
+    this.pole.setOrigin(1, 1);
+    this.pole.displayWidth = this.poleWidth;
+    this.pole.displayHeight = this.poleWidth;
+  }
+
+  handlePointerDown() {
+    const maxPoleWidth = this.platformGapRange[1] + this.platformWidthRange[1];
+
+    this.growTween = this.tweens.add({
+      targets: [this.pole],
+      displayHeight: maxPoleWidth + 50,
+      duration: this.poleGrowTime,
+    });
+  }
+
+  handlePointerUp() {
+    this.growTween.stop();
+
+    this.tweens.add({
+      targets: [this.pole],
+      angle: 90,
+      duration: this.poleRotateTime,
+      ease: "Bounce.easeOut",
+    });
   }
 }
