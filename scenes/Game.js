@@ -1,5 +1,6 @@
 import gameOptions from "../main.js";
 import { getCoords } from "../utils/functions.js";
+import { SUCCESS, TOO_SHORT, TOO_LONG } from "../utils/PoleStatus.js";
 
 export default class Game extends Phaser.Scene {
   constructor() {
@@ -186,12 +187,58 @@ export default class Game extends Phaser.Scene {
       .play("idle");
   }
 
-  moveHero() {
+  getRules() {
+    const platformBounds = this.platforms[1 - this.mainPlatform].getBounds();
+    const heroBounds = this.hero.getBounds();
+    const poleBounds = this.pole.getBounds();
+
+    const rules = {
+      [SUCCESS]: {
+        heroDestination: platformBounds.right - this.poleWidth,
+        methods: ["nextPlatform"],
+      },
+      [TOO_SHORT]: {
+        heroDestination: poleBounds.right,
+        methods: ["poleFallDown", "fallAndDie"],
+      },
+      [TOO_LONG]: {
+        heroDestination: poleBounds.right + heroBounds.width / 2,
+        methods: ["fallAndDie"],
+      },
+    };
+    return rules;
+  }
+
+  moveHero(poleStatus) {
     this.hero.play("run");
+    const { heroDestination, methods } = this.getRules()[poleStatus];
+
+    const scene = this;
+
     this.walkTween = this.tweens.add({
       targets: [this.hero],
-      x: this.pole.getBounds().right,
+      x: heroDestination,
       duration: this.heroWalkTime * this.pole.displayHeight,
+      callbackScope: this,
+      onComplete: function () {
+        methods.forEach((method) => {
+          scene[method]();
+        });
+      },
+      onUpdate: function () {
+        const heroBounds = this.hero.getBounds();
+        const poleBounds = this.pole.getBounds();
+        const platformBounds =
+          this.platforms[1 - this.mainPlatform].getBounds();
+        if (
+          heroBounds.centerX > poleBounds.left &&
+          heroBounds.centerX < poleBounds.right
+        ) {
+          this.hero.y = poleBounds.top;
+        } else {
+          this.hero.y = platformBounds.top;
+        }
+      },
     });
   }
 
@@ -205,6 +252,74 @@ export default class Game extends Phaser.Scene {
     });
   }
 
+  poleFallDown() {
+    this.tweens.add({
+      targets: [this.pole],
+      angle: 180,
+      duration: this.poleRotateTime,
+      ease: "Cubic.easeIn",
+    });
+  }
+
+  fallAndDie() {
+    this.tweens.add({
+      targets: [this.hero],
+      y: this.coords.height + this.hero.displayHeight * 2,
+      angle: 180,
+      duration: this.heroFallTime,
+      ease: "Cubic.easeIn",
+      callbackScope: this,
+      onComplete: function () {
+        this.cameras.main.shake(200, 0.01);
+      },
+    });
+  }
+
+  nextPlatform() {
+    this.hero.anims.play("idle");
+    this.hero.y = this.platforms[this.mainPlatform].getBounds().top;
+    const rightPlatformPosition = this.platforms[1 - this.mainPlatform].x;
+    const distance =
+      this.platforms[1 - this.mainPlatform].x -
+      this.platforms[this.mainPlatform].x;
+
+    this.tweens.add({
+      targets: [this.hero, this.pole, this.platforms[0], this.platforms[1]],
+      props: {
+        x: {
+          value: "-= " + distance,
+        },
+        alpha: {
+          value: {
+            getEnd: function (target, key, value) {
+              if (target.x < rightPlatformPosition) {
+                return 0;
+              }
+              return 1;
+            },
+          },
+        },
+      },
+      duration: this.scrollTime,
+      callbackScope: this,
+      onComplete: function () {
+        this.prepareNextMove();
+      },
+    });
+  }
+
+  prepareNextMove() {
+    this.platforms[this.mainPlatform].x = this.sys.game.config.width;
+    this.platforms[this.mainPlatform].alpha = 1;
+    this.mainPlatform = 1 - this.mainPlatform;
+    this.tweenPlatform();
+    this.pole.angle = 0;
+    this.pole.alpha = 1;
+    this.pole.x =
+      this.platforms[this.mainPlatform].getBounds().right - this.poleWidth;
+    this.pole.displayHeight = this.poleWidth;
+  }
+
   handlePointerUp() {
     this.growTween.stop();
 
@@ -215,7 +330,19 @@ export default class Game extends Phaser.Scene {
       ease: "Bounce.easeOut",
       callbackScope: this,
       onComplete: function () {
-        this.moveHero();
+        const poleBounds = this.pole.getBounds();
+        const platformBounds =
+          this.platforms[1 - this.mainPlatform].getBounds();
+
+        let poleStatus = SUCCESS;
+        if (poleBounds.right < platformBounds.left) {
+          poleStatus = TOO_SHORT;
+        } else {
+          if (poleBounds.right > platformBounds.right) {
+            poleStatus = TOO_LONG;
+          }
+        }
+        this.moveHero(poleStatus);
       },
     });
   }
