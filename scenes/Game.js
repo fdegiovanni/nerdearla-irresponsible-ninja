@@ -1,5 +1,6 @@
 import gameOptions from "../main.js";
 import { getCoords } from "../utils/functions.js";
+import { IDLE, WAITING_START, WAITING_STOP } from "../utils/InputStatus.js";
 import { SUCCESS, TOO_SHORT, TOO_LONG } from "../utils/PoleStatus.js";
 
 export default class Game extends Phaser.Scene {
@@ -10,6 +11,7 @@ export default class Game extends Phaser.Scene {
     `gameOptions` object to the `this` object. This allows the `Game` class to access the properties
     defined in `gameOptions` as if they were its own properties. */
     Object.assign(this, gameOptions);
+    this.gameMode = WAITING_START;
   }
 
   init() {}
@@ -243,13 +245,18 @@ export default class Game extends Phaser.Scene {
   }
 
   handlePointerDown() {
-    const maxPoleWidth = this.platformGapRange[1] + this.platformWidthRange[1];
+    if (this.gameMode === WAITING_START) {
+      this.gameMode = WAITING_STOP;
 
-    this.growTween = this.tweens.add({
-      targets: [this.pole],
-      displayHeight: maxPoleWidth + 50,
-      duration: this.poleGrowTime,
-    });
+      const maxPoleWidth =
+        this.platformGapRange[1] + this.platformWidthRange[1];
+
+      this.growTween = this.tweens.add({
+        targets: [this.pole],
+        displayHeight: maxPoleWidth + 50,
+        duration: this.poleGrowTime,
+      });
+    }
   }
 
   poleFallDown() {
@@ -309,7 +316,7 @@ export default class Game extends Phaser.Scene {
   }
 
   prepareNextMove() {
-    this.platforms[this.mainPlatform].x = this.sys.game.config.width;
+    this.platforms[this.mainPlatform].x = this.coords.width;
     this.platforms[this.mainPlatform].alpha = 1;
     this.mainPlatform = 1 - this.mainPlatform;
     this.tweenPlatform();
@@ -318,32 +325,38 @@ export default class Game extends Phaser.Scene {
     this.pole.x =
       this.platforms[this.mainPlatform].getBounds().right - this.poleWidth;
     this.pole.displayHeight = this.poleWidth;
+
+    this.gameMode = WAITING_START;
   }
 
   handlePointerUp() {
-    this.growTween.stop();
+    if (this.gameMode === WAITING_STOP) {
+      this.gameMode = IDLE;
 
-    this.tweens.add({
-      targets: [this.pole],
-      angle: 90,
-      duration: this.poleRotateTime,
-      ease: "Bounce.easeOut",
-      callbackScope: this,
-      onComplete: function () {
-        const poleBounds = this.pole.getBounds();
-        const platformBounds =
-          this.platforms[1 - this.mainPlatform].getBounds();
+      this.growTween.stop();
 
-        let poleStatus = SUCCESS;
-        if (poleBounds.right < platformBounds.left) {
-          poleStatus = TOO_SHORT;
-        } else {
-          if (poleBounds.right > platformBounds.right) {
-            poleStatus = TOO_LONG;
+      this.tweens.add({
+        targets: [this.pole],
+        angle: 90,
+        duration: this.poleRotateTime,
+        ease: "Bounce.easeOut",
+        callbackScope: this,
+        onComplete: function () {
+          const poleBounds = this.pole.getBounds();
+          const platformBounds =
+            this.platforms[1 - this.mainPlatform].getBounds();
+
+          let poleStatus = SUCCESS;
+          if (poleBounds.right < platformBounds.left) {
+            poleStatus = TOO_SHORT;
+          } else {
+            if (poleBounds.right > platformBounds.right) {
+              poleStatus = TOO_LONG;
+            }
           }
-        }
-        this.moveHero(poleStatus);
-      },
-    });
+          this.moveHero(poleStatus);
+        },
+      });
+    }
   }
 }
