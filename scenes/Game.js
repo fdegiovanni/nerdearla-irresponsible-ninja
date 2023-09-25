@@ -3,6 +3,9 @@ import {
   getCoords,
   getStoredScore,
   setStoredScore,
+  addSounds,
+  playSound,
+  stopSound,
 } from "../utils/functions.js";
 import { IDLE, WAITING_START, WAITING_STOP } from "../utils/InputStatus.js";
 import { SUCCESS, TOO_SHORT, TOO_LONG } from "../utils/PoleStatus.js";
@@ -27,6 +30,7 @@ export default class Game extends Phaser.Scene {
   }
 
   create() {
+    addSounds(this);
     this.coords = getCoords(this);
 
     this.addBackground();
@@ -224,6 +228,7 @@ export default class Game extends Phaser.Scene {
   }
 
   moveHero(poleStatus) {
+    playSound(this.sounds.run);
     this.hero.play("run");
     const { heroDestination, methods } = this.getRules()[poleStatus];
 
@@ -235,6 +240,7 @@ export default class Game extends Phaser.Scene {
       duration: this.heroWalkTime * this.pole.displayHeight,
       callbackScope: this,
       onComplete: function () {
+        stopSound(this.sounds.run);
         methods.forEach((method) => {
           scene[method]();
         });
@@ -259,7 +265,7 @@ export default class Game extends Phaser.Scene {
   handlePointerDown() {
     if (this.gameMode === WAITING_START) {
       this.gameMode = WAITING_STOP;
-
+      playSound(this.sounds.grow);
       const maxPoleWidth =
         this.platformGapRange[1] + this.platformWidthRange[1];
 
@@ -267,6 +273,10 @@ export default class Game extends Phaser.Scene {
         targets: [this.pole],
         displayHeight: maxPoleWidth + 50,
         duration: this.poleGrowTime,
+        callbackScope: this,
+        onComplete: function () {
+          stopSound(this.sounds.grow);
+        },
       });
 
       if (this.firstMove) {
@@ -287,6 +297,10 @@ export default class Game extends Phaser.Scene {
   }
 
   fallAndDie() {
+    playSound(this.sounds.death, {
+      delay: this.heroFallTime / 2000,
+    });
+
     this.gameTimer?.remove();
 
     this.tweens.add({
@@ -375,6 +389,9 @@ export default class Game extends Phaser.Scene {
   handlePointerUp() {
     if (this.gameMode === WAITING_STOP) {
       this.gameMode = IDLE;
+
+      stopSound(this.sounds.grow);
+      playSound(this.sounds.stick);
 
       this.growTween.stop();
 

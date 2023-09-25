@@ -1,5 +1,10 @@
 import gameOptions from "../main.js";
-import { getGameName, getCoords } from "../utils/functions.js";
+import {
+  getGameName,
+  getCoords,
+  addSounds,
+  playSound,
+} from "../utils/functions.js";
 
 export default class Credits extends Phaser.Scene {
   constructor() {
@@ -9,6 +14,7 @@ export default class Credits extends Phaser.Scene {
   }
 
   create() {
+    addSounds(this);
     const gameName = getGameName(this);
     const { centerX, centerY, height, width } = getCoords(this);
     this.cameras.main.setBackgroundColor("#000000");
@@ -69,6 +75,7 @@ export default class Credits extends Phaser.Scene {
         backButton.setScale(0.5);
       })
       .on("pointerup", () => {
+        playSound(this.sounds.click);
         this.scene.resume("menu");
         this.scene.stop("credits");
       });

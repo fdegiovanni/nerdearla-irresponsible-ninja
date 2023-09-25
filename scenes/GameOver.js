@@ -1,4 +1,9 @@
-import { getCoords, getGameName } from "../utils/functions.js";
+import {
+  getCoords,
+  getGameName,
+  addSounds,
+  playSound,
+} from "../utils/functions.js";
 
 export default class GameOver extends Phaser.Scene {
   constructor() {
@@ -10,6 +15,7 @@ export default class GameOver extends Phaser.Scene {
   }
 
   create() {
+    addSounds(this);
     const { centerX, centerY, height } = getCoords(this);
 
     const styleText = {
@@ -49,6 +55,7 @@ export default class GameOver extends Phaser.Scene {
       .on(
         "pointerup",
         function () {
+          playSound(this.sounds.click);
           this.scene.start("game");
         },
         this
@@ -62,6 +69,7 @@ export default class GameOver extends Phaser.Scene {
       .on(
         "pointerup",
         function () {
+          playSound(this.sounds.click);
           this.scene.start("menu");
         },
         this

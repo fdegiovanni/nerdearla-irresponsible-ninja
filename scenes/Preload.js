@@ -34,6 +34,31 @@ export default class Preload extends Phaser.Scene {
     this.load.image("clock", "./assets/images/clock.png");
     this.load.image("energybar", "./assets/images/energybar.png");
     this.load.image("whitetile", "./assets/images/whitetile.png");
+
+    this.load.audio("death", [
+      "assets/sounds/death.mp3",
+      "assets/sounds/death.ogg",
+    ]);
+    this.load.audio("run", [
+      "./assets/sounds/run.mp3",
+      "./assets/sounds/run.ogg",
+    ]);
+    this.load.audio("stick", [
+      "./assets/sounds/stick.mp3",
+      "./assets/sounds/stick.ogg",
+    ]);
+    this.load.audio("grow", [
+      "./assets/sounds/grow.mp3",
+      "./assets/sounds/grow.ogg",
+    ]);
+    this.load.audio("pick", [
+      "./assets/sounds/pick.mp3",
+      "./assets/sounds/pick.ogg",
+    ]);
+    this.load.audio("click", [
+      "./assets/sounds/click.mp3",
+      "./assets/sounds/click.ogg",
+    ]);
   }
 
   create() {

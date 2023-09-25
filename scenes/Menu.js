@@ -1,8 +1,15 @@
-import { getCoords, getGameName, getStoredScore } from "../utils/functions.js";
+import {
+  getCoords,
+  getGameName,
+  getStoredScore,
+  addSounds,
+  playSound,
+} from "../utils/functions.js";
 
 export default class Menu extends Phaser.Scene {
   constructor() {
     super("menu");
+    window.soundOn = true;
   }
 
   init() {
@@ -11,11 +18,13 @@ export default class Menu extends Phaser.Scene {
   }
 
   create() {
+    addSounds(this);
     this.coords = getCoords(this);
     this.addBackground();
     this.addCover();
     this.addTexts();
     this.addInteractions();
+    this.addSoundButton();
   }
 
   addBackground() {
@@ -39,7 +48,7 @@ export default class Menu extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.bestText = this.add
-      .text(centerX, height - 85, `Best: ${this.best}`, {
+      .text(centerX, height - 110, `Best: ${this.best}`, {
         fontSize: "26px",
         color: "#fff",
         fixedWidth: 450,
@@ -67,6 +76,7 @@ export default class Menu extends Phaser.Scene {
     this.creditsButton.setInteractive({ useHandCursor: true });
 
     this.creditsButton.on("pointerup", () => {
+      playSound(this.sounds.click);
       this.scene.pause();
       this.scene.launch("credits");
     });
@@ -80,6 +90,7 @@ export default class Menu extends Phaser.Scene {
     });
 
     this.cover.on(Phaser.Input.Events.POINTER_DOWN, () => {
+      playSound(this.sounds.click);
       this.add.tween({
         targets: [this.cover, this.title],
         ease: "Bounce.easeIn",
@@ -97,5 +108,24 @@ export default class Menu extends Phaser.Scene {
         duration: 300,
       });
     });
+  }
+
+  addSoundButton() {
+    const { centerX, height } = this.coords;
+    this.soundButton = this.add
+      .sprite(centerX, height - 50, "icons")
+      .setScale(0.5)
+      .setFrame(window.soundOn ? 2 : 3)
+      .setInteractive()
+      .on(
+        "pointerup",
+        function () {
+          window.soundOn = !window.soundOn;
+          this.soundButton.setFrame(window.soundOn ? 2 : 3);
+
+          playSound(this.sounds.click);
+        },
+        this
+      );
   }
 }
