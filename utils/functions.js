@@ -13,4 +13,17 @@ const getGameName = (scene) => {
   return scene.sys.game.config.gameTitle || "";
 };
 
-export { getCoords, getGameName };
+const keyStore = "irresponsible";
+
+const getStoredScore = () => {
+  const storedScore = localStorage.getItem(keyStore);
+  return storedScore
+    ? JSON.parse(storedScore)
+    : { score: 0, streak: 0, best: 0 };
+};
+
+const setStoredScore = (score) => {
+  localStorage.setItem(keyStore, JSON.stringify(score));
+};
+
+export { getCoords, getGameName, getStoredScore, setStoredScore };

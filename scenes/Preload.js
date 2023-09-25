@@ -31,6 +31,9 @@ export default class Preload extends Phaser.Scene {
       "win3",
       "https://i.pinimg.com/originals/b8/25/10/b8251034bd24a82076c35b0ebb963060.gif"
     );
+    this.load.image("clock", "./assets/images/clock.png");
+    this.load.image("energybar", "./assets/images/energybar.png");
+    this.load.image("whitetile", "./assets/images/whitetile.png");
   }
 
   create() {

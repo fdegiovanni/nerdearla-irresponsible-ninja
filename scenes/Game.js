@@ -1,5 +1,9 @@
 import gameOptions from "../main.js";
-import { getCoords } from "../utils/functions.js";
+import {
+  getCoords,
+  getStoredScore,
+  setStoredScore,
+} from "../utils/functions.js";
 import { IDLE, WAITING_START, WAITING_STOP } from "../utils/InputStatus.js";
 import { SUCCESS, TOO_SHORT, TOO_LONG } from "../utils/PoleStatus.js";
 
@@ -7,6 +11,9 @@ export default class Game extends Phaser.Scene {
   constructor() {
     super("game");
 
+    this.points = getStoredScore();
+    this.mountains = 0;
+    this.timeLeft = 30;
     /* `Object.assign(this, gameOptions);` is assigning the properties and values from the
     `gameOptions` object to the `this` object. This allows the `Game` class to access the properties
     defined in `gameOptions` as if they were its own properties. */
@@ -14,7 +21,10 @@ export default class Game extends Phaser.Scene {
     this.gameMode = WAITING_START;
   }
 
-  init() {}
+  init() {
+    this.mountains = 0;
+    this.points = getStoredScore();
+  }
 
   create() {
     this.coords = getCoords(this);
@@ -24,6 +34,8 @@ export default class Game extends Phaser.Scene {
     this.addPlatforms();
     this.addPole();
     this.addHero();
+
+    this.addGameInfo();
 
     // input management
     this.input.on("pointerdown", this.handlePointerDown, this);
@@ -256,6 +268,12 @@ export default class Game extends Phaser.Scene {
         displayHeight: maxPoleWidth + 50,
         duration: this.poleGrowTime,
       });
+
+      if (this.firstMove) {
+        this.info.visible = false;
+        this.showGameScore();
+        this.addGameTimer();
+      }
     }
   }
 
@@ -269,6 +287,8 @@ export default class Game extends Phaser.Scene {
   }
 
   fallAndDie() {
+    this.gameTimer?.remove();
+
     this.tweens.add({
       targets: [this.hero],
       y: this.coords.height + this.hero.displayHeight * 2,
@@ -278,7 +298,9 @@ export default class Game extends Phaser.Scene {
       callbackScope: this,
       onComplete: function () {
         this.cameras.main.shake(200, 0.01);
-        this.showGameOver();
+        setTimeout(() => {
+          this.showGameOver();
+        }, 220);
       },
     });
   }
@@ -317,7 +339,9 @@ export default class Game extends Phaser.Scene {
   }
 
   prepareNextMove() {
-    this.showWin();
+    this.mountains++;
+    this.points.streak++;
+    this.updateScore();
 
     this.platforms[this.mainPlatform].x = this.coords.width;
     this.platforms[this.mainPlatform].alpha = 1;
@@ -334,11 +358,18 @@ export default class Game extends Phaser.Scene {
 
   showWin() {
     this.scene.pause("game");
-    this.scene.launch("win");
+    this.scene.launch("win", this.points);
   }
 
   showGameOver() {
-    this.scene.start("game-over");
+    const score = this.points.score;
+    this.points = {
+      ...this.points,
+      score: 0,
+      streak: 0,
+    };
+    setStoredScore(this.points);
+    this.scene.start("game-over", { score });
   }
 
   handlePointerUp() {
@@ -370,5 +401,100 @@ export default class Game extends Phaser.Scene {
         },
       });
     }
+  }
+
+  addGameInfo() {
+    const { centerX, centerY } = this.coords;
+    const content = `HOLD YOUR FINGER ON THE SCREEN
+    TO STRECHT OUT THE STICK
+    AND REACH NEXT PLATFORM`;
+    this.info = this.add
+      .text(centerX, centerY * 0.5, content, {
+        fontSize: "22px",
+        color: "#fff",
+        align: "center",
+      })
+      .setOrigin(0.5);
+    this.gameMode = WAITING_START;
+    this.firstMove = true;
+  }
+
+  showGameScore() {
+    this.firstMove = false;
+    const energyBar = this.add.sprite(
+      this.coords.centerX,
+      this.coords.height / 5,
+      "energybar"
+    );
+
+    const energyBounds = energyBar.getBounds();
+    this.scoreText = this.add
+      .text(
+        energyBounds.right,
+        energyBounds.top - 40,
+        `DISTANCE: ${this.mountains}`,
+        {
+          fontSize: "22px",
+          color: "#FFFFFF",
+        }
+      )
+      .setOrigin(1, 0);
+
+    this.bestScoreText = this.add
+      .text(
+        energyBounds.left,
+        energyBounds.bottom + 10,
+        `MAX DISTANCE: ${this.points.best || 0}`,
+        {
+          fontSize: "22px",
+          color: "#FFFFFF",
+        }
+      )
+      .setOrigin(0, 0);
+
+    this.energyStatus = this.add.sprite(
+      energyBounds.left + 5,
+      energyBounds.top + 5,
+      "whitetile"
+    );
+    this.energyStatus.setOrigin(0, 0);
+    this.energyStatus.displayWidth = 500;
+    this.energyStatus.displayHeight = energyBounds.height - 10;
+  }
+
+  addGameTimer() {
+    this.gameTimer = this.time.addEvent({
+      delay: 1000,
+      callback: function () {
+        this.timeLeft--;
+        this.updateTimer();
+      },
+      callbackScope: this,
+      loop: true,
+    });
+  }
+
+  updateTimer() {
+    this.energyStatus.displayWidth = (500 * this.timeLeft) / 30;
+    if (this.timeLeft == 0) {
+      this.tweens.killTweensOf(this.hero);
+      this.tweens.killTweensOf(this.pole);
+
+      this.fallAndDie();
+    }
+  }
+
+  updateScore() {
+    this.scoreText?.setText(`DISTANCE: ${this.mountains}`);
+    this.points.score = this.mountains;
+    if (this.mountains > this.points.best) {
+      this.points.best = this.mountains;
+      this.bestScoreText?.setText(`MAX DISTANCE: ${this.points.best}`);
+    }
+
+    if (this.points.streak % 3 === 0) {
+      this.showWin();
+    }
+    setStoredScore(this.points);
   }
 }
