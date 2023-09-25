@@ -1,3 +1,4 @@
+import gameOptions from "../main.js";
 import {
   getCoords,
   getGameName,
@@ -10,6 +11,7 @@ export default class Menu extends Phaser.Scene {
   constructor() {
     super("menu");
     window.soundOn = true;
+    Object.assign(this, gameOptions);
   }
 
   init() {
@@ -39,25 +41,23 @@ export default class Menu extends Phaser.Scene {
 
     this.title = this.add
       .text(centerX, 100, getGameName(this), {
-        fontSize: "48px",
-        color: "#fff",
+        ...this.textFormat,
         fixedWidth: 450,
         wordWrap: { width: 450 },
-        align: "center",
       })
       .setOrigin(0.5);
 
     this.bestText = this.add
-      .text(centerX, height - 110, `Best: ${this.best}`, {
+      .text(centerX, height - 110, `BEST: ${this.best}`, {
+        ...this.textFormat,
         fontSize: "26px",
-        color: "#fff",
         fixedWidth: 450,
         wordWrap: { width: 450 },
-        align: "center",
       })
       .setOrigin(0.5);
 
-    this.creditsButton = this.add.text(width - 150, height - 30, "Créditos", {
+    this.creditsButton = this.add.text(width - 150, height - 30, "CREDITS", {
+      ...this.textFormat,
       fontSize: "24px",
       fill: "#fff",
     });

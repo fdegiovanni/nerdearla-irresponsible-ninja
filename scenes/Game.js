@@ -427,9 +427,8 @@ export default class Game extends Phaser.Scene {
     AND REACH NEXT PLATFORM`;
     this.info = this.add
       .text(centerX, centerY * 0.5, content, {
+        ...this.textFormat,
         fontSize: "22px",
-        color: "#fff",
-        align: "center",
       })
       .setOrigin(0.5);
     this.gameMode = WAITING_START;
@@ -451,8 +450,8 @@ export default class Game extends Phaser.Scene {
         energyBounds.top - 40,
         `DISTANCE: ${this.mountains}`,
         {
+          ...this.textFormat,
           fontSize: "22px",
-          color: "#FFFFFF",
         }
       )
       .setOrigin(1, 0);
@@ -463,8 +462,8 @@ export default class Game extends Phaser.Scene {
         energyBounds.bottom + 10,
         `MAX DISTANCE: ${this.points.best || 0}`,
         {
+          ...this.textFormat,
           fontSize: "22px",
-          color: "#FFFFFF",
         }
       )
       .setOrigin(0, 0);
@@ -497,6 +496,9 @@ export default class Game extends Phaser.Scene {
       this.tweens.killTweensOf(this.hero);
       this.tweens.killTweensOf(this.pole);
 
+      this.timeLeft = 30;
+      stopSound(this.sounds.run);
+      stopSound(this.sounds.grow);
       this.fallAndDie();
     }
   }

@@ -1,3 +1,4 @@
+import gameOptions from "../main.js";
 import {
   getCoords,
   getGameName,
@@ -8,6 +9,8 @@ import {
 export default class GameOver extends Phaser.Scene {
   constructor() {
     super("game-over");
+
+    Object.assign(this, gameOptions);
   }
 
   init({ score = 0 }) {
@@ -19,11 +22,9 @@ export default class GameOver extends Phaser.Scene {
     const { centerX, centerY, height } = getCoords(this);
 
     const styleText = {
-      fontSize: "40px",
-      color: "#fff",
+      ...this.textFormat,
       fixedWidth: 450,
       wordWrap: { width: 450 },
-      align: "center",
     };
 
     this.add
@@ -35,7 +36,7 @@ export default class GameOver extends Phaser.Scene {
     this.add
       .text(centerX, 200, "Game Over", {
         ...styleText,
-        fontSize: "48px",
+        fontSize: "60px",
         color: "red",
       })
       .setOrigin(0.5);

@@ -21,6 +21,12 @@ const gameOptions = {
   heroWalkTime: 2,
   heroFallTime: 500,
   developer: "fdegiovanni",
+  textFormat: {
+    fontFamily: "Osake",
+    fontSize: "48px",
+    color: "#fff",
+    align: "center",
+  },
 };
 export default gameOptions;
 
@@ -29,6 +35,9 @@ const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
+  scale: {
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
   scene: [Preload, Menu, Credits, Game, GameOver, Win],
 };
 
